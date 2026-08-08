@@ -75,7 +75,8 @@ TheNovaAi/
 │
 ├── Ai.py
 ├── Apps.json
-│
+├── API.txt
+|
 ├── SpeechRecog/
 │   └── hey_jarvis_v0.1.onnx
 │
@@ -216,31 +217,9 @@ You do **not** need to modify the Python code.
 
 TheNovaAi uses Groq for its AI responses.
 
-You need your **own Groq API key**.
+You need your **own Groq API key**. You can get yours from [here](https://console.groq.com/keys)
 
-Put your API key directly into `Ai.py`. Do not SHARE the API key with anybody.
-
-### Recommended method
-
-Set an environment variable.
-
-In PowerShell:
-
-```powershell
-$env:GROQ_API_KEY="YOUR_API_KEY_HERE"
-```
-
-Then the Python code can use:
-
-```python
-import os
-
-client = Groq(
-    api_key=os.environ["GROQ_API_KEY"]
-)
-```
-
-Never commit your API key to GitHub.
+Put your API key into `Config.json`. Do not SHARE the API key with anybody.
 
 If a key is accidentally exposed, revoke it and create a new one.
 
@@ -250,7 +229,7 @@ If a key is accidentally exposed, revoke it and create a new one.
 
 TheNovaAi currently uses a specific audio input device.
 
-If the project contains something like:
+The project contains:
 
 ```python
 device=1
@@ -266,18 +245,18 @@ import sounddevice as sd
 print(sd.query_devices())
 ```
 
-Find the desired microphone and update the configured device number.
+Find the desired microphone and update the configured device number in the config file.
 
-A future version will make this configurable without editing the Python source.
+~~A future version will make this configurable without editing the Python source.~~
 
 ---
 
 # Running TheNovaAi
 
-Once everything is installed:
+Once everything is installed run the following inside the Ai folder:
 
 ```powershell
-py gemini.py
+py Ai.py
 ```
 
 You should see something similar to:
@@ -301,8 +280,8 @@ The assistant will respond and begin listening for your command.
 ### Applications
 
 ```text
-Open Edge
-Open Nuclear
+Open Edge (to use a different browser it must be added into the Apps.json)
+Open Nuclear (music app)
 Close Edge
 ```
 
@@ -317,7 +296,7 @@ Search the web for Minecraft shaders
 ### YouTube
 
 ```text
-Open YouTube and search for Minecraft
+Search for Minecraft in YouTube 
 ```
 
 ### Media
@@ -342,10 +321,8 @@ Hibernate the computer
 ### Exit
 
 ```text
-Close
+Close/Exit/Or something similar
 ```
-
-or another configured exit command.
 
 ---
 
@@ -375,7 +352,7 @@ Make sure:
 Models/hey_jarvis_v0.1.onnx
 ```
 
-exists and that the Python path matches the actual filename.
+exists and that the Python path matches the actual filename in Ai.py.
 
 ---
 
@@ -404,31 +381,9 @@ Then make sure TheNovaAi is using the correct input device.
 Check that:
 
 1. Your API key is valid.
-2. The `GROQ_API_KEY` environment variable is set.
+2. The `GROQ_API_KEY` variable is set in config.
 3. Your computer has an Internet connection.
 4. Your selected Groq model is available to your account.
-
----
-
-# Security
-
-**Never commit API keys to GitHub.**
-
-Do not put this in the repository:
-
-```python
-Groq(api_key="gsk_...")
-```
-
-Use an environment variable instead.
-
-You should also avoid committing personal paths such as:
-
-```text
-C:\Users\YourName\...
-```
-
-when they aren't necessary.
 
 ---
 
@@ -472,8 +427,8 @@ This allows applications and aliases to be added without modifying the core assi
 Planned improvements include:
 
 * [ ] GUI
-* [ ] Config file
-* [ ] Easier microphone selection
+* [x] Config file
+* [x] Easier microphone selection
 * [ ] Custom wake word
 * [ ] More PC commands
 * [ ] More application integrations
@@ -488,4 +443,4 @@ Planned improvements include:
 
 ## License
 
-Add the project's license here before publishing the repository.
+Idk
