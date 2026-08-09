@@ -262,13 +262,13 @@ py Ai.py
 You should see something similar to:
 
 ```text
-Listening for Hey Jarvis...
+Listening for Hey Nova...
 ```
 
 Say:
 
 ```text
-Hey Jarvis
+Hey Nova
 ```
 
 The assistant will respond and begin listening for your command.
@@ -349,7 +349,7 @@ py -m pip install sounddevice SpeechRecognition numpy openwakeword piper-tts pyn
 Make sure:
 
 ```text
-Models/hey_jarvis_v0.1.onnx
+Models/Hey_Nova.onnx
 ```
 
 exists and that the Python path matches the actual filename in Ai.py.
@@ -395,7 +395,7 @@ Microphone
     ▼
 OpenWakeWord
     │
-    │ "Hey Jarvis"
+    │ "Hey Nova"
     ▼
 Speech Recognition
     │
@@ -429,7 +429,7 @@ Planned improvements include:
 * [ ] GUI
 * [x] Config file
 * [x] Easier microphone selection
-* [ ] Custom wake word
+* [x] Custom wake word (currently not user customizable)
 * [ ] More PC commands
 * [ ] More application integrations
 * [ ] Better speech detection
