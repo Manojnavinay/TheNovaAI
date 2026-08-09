@@ -260,8 +260,9 @@ Once everything is installed run the following inside the Ai folder:
 ```powershell
 py main.py
 ```
->Right Click in the folder where main.py is located --> click Open in terminal --> run `py main.py`
->The program will start to listen for `Hey Nova` to be spoken, program is minimized into the tray by default
+Right Click in the folder where main.py is located --> click Open in terminal --> run `py main.py`
+
+The program will start to listen for `Hey Nova` to be spoken, program is minimized into the tray by default
 
 ---
 
