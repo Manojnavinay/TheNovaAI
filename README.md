@@ -46,7 +46,7 @@ Download the Zip from releases and extract it.
 Open PowerShell inside the project folder and run:
 
 ```powershell
-py -m pip install sounddevice SpeechRecognition numpy openwakeword piper-tts pynput groq onnxruntime
+py -m pip install sounddevice SpeechRecognition numpy openwakeword piper-tts pynput groq onnxruntime customtkinter pystray pillow
 ```
 
 ### What these packages do
@@ -61,8 +61,9 @@ py -m pip install sounddevice SpeechRecognition numpy openwakeword piper-tts pyn
 | `pynput`            | Keyboard and media-key control    |
 | `groq`              | Groq AI API                       |
 | `onnxruntime`       | OpenWakeWord ONNX inference       |
-
-The other Python modules used by the project are part of Python's standard library and do not need to be installed separately.
+| `customtkinter`     | Desktop UI Lib                    |
+| `pystray`           | For System Tray Icon              |
+| `pillow`            | Image processing                  |
 
 ---
 
@@ -73,19 +74,19 @@ The project should have a structure similar to:
 ```text
 TheNovaAi/
 │
-├── Ai.py
+├── Main.py
+├── assistant_core.py
 ├── Apps.json
-├── API.txt
+├── config.json
 |
 ├── SpeechRecog/
+|   ├── Hey_Nova.onnx
 │   └── hey_jarvis_v0.1.onnx
 │
 └── Voices/
     ├── name.onnx
     └── name.onnx.json
 ```
-
-Your actual voice/model filenames may differ depending on which Piper voice you choose.
 
 ---
 
@@ -248,6 +249,7 @@ print(sd.query_devices())
 Find the desired microphone and update the configured device number in the config file.
 
 ~~A future version will make this configurable without editing the Python source.~~
+Done, you can edit it in the `config.json`
 
 ---
 
@@ -256,22 +258,10 @@ Find the desired microphone and update the configured device number in the confi
 Once everything is installed run the following inside the Ai folder:
 
 ```powershell
-py Ai.py
+py main.py
 ```
-
-You should see something similar to:
-
-```text
-Listening for Hey Nova...
-```
-
-Say:
-
-```text
-Hey Nova
-```
-
-The assistant will respond and begin listening for your command.
+>Right Click in the folder where main.py is located --> click Open in terminal --> run `py main.py`
+>The program will start to listen for `Hey Nova` to be spoken, program is minimized into the tray by default
 
 ---
 
@@ -426,7 +416,7 @@ This allows applications and aliases to be added without modifying the core assi
 
 Planned improvements include:
 
-* [ ] GUI
+* [x] GUI
 * [x] Config file
 * [x] Easier microphone selection
 * [x] Custom wake word (currently not user customizable)
