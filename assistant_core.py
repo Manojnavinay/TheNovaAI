@@ -93,36 +93,36 @@ wake_responses = [
     "I'm listening.",
     "Go ahead.",
     "Yes?",
-    "What can I do for you?"
-    "I’m here."
-    "Yep?"
-    "Go ahead."
-    "What’s up?"
-    "Ready when you are."
-    "Listening."
-    "At your service."
-    "Nova ready."
-    "You called?"
-    "What can Nova do for you?"
-    "All systems ready."
-    "Yo! What’s up?"
-    "Hey! I’m here."
-    "What’s going on?"
-    "Yep, I’m listening."
-    "Shoot."
-    "I got you."
-    "What do you need?"
-    "Alright, I’m listening."
-    "Nova has entered the chat."
-    "And we’re live."
-    "I heard you!"
-    "Present!"
-    "Nova at your service."
-    "I’m all ears."
-    "How may I assist?"
-    "What would you like me to do?"
-    "Awaiting your command."
-    "How can I assist you today?"
+    "What can I do for you?",
+    "I’m here.",
+    "Yep?",
+    "Go ahead.",
+    "What’s up?",
+    "Ready when you are.",
+    "Listening.",
+    "At your service.",
+    "Nova ready.",
+    "You called?",
+    "What can Nova do for you?",
+    "All systems ready.",
+    "Yo! What’s up?",
+    "Hey! I’m here.",
+    "What’s going on?",
+    "Yep, I’m listening.",
+    "Shoot.",
+    "I got you.",
+    "What do you need?",
+    "Alright, I’m listening.",
+    "Nova has entered the chat.",
+    "And we’re live.",
+    "I heard you!",
+    "Present!",
+    "Nova at your service.",
+    "I’m all ears.",
+    "How may I assist?",
+    "What would you like me to do?",
+    "Awaiting your command.",
+    "How can I assist you today?",
     "Standing by."
 ]
 
