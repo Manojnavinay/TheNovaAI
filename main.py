@@ -4,7 +4,7 @@ import queue
 import customtkinter as ctk
 from PIL import Image, ImageDraw
 import pystray
-
+from settings_window import SettingsWindow
 import assistant_core as core
 
 event_queue: "queue.Queue" = queue.Queue()
@@ -174,7 +174,12 @@ class NovaApp:
         self.pause_btn = ctk.CTkButton(
             footer, text="Pause", command=self.toggle_pause
         )
-        self.pause_btn.pack(side="left", expand=True, fill="x", padx=(0, 6))
+        self.pause_btn.pack(side="left", expand=True, fill="x", padx=(0, 4))
+
+        settings_btn = ctk.CTkButton(
+            footer, text="Settings", command=self.open_settings
+        )
+        settings_btn.pack(side="left", expand=True, fill="x", padx=4)
 
         quit_btn = ctk.CTkButton(
             footer,
@@ -183,7 +188,10 @@ class NovaApp:
             hover_color="#822",
             command=self.quit_app,
         )
-        quit_btn.pack(side="left", expand=True, fill="x", padx=(6, 0))
+        quit_btn.pack(side="left", expand=True, fill="x", padx=(4, 0))
+
+    def open_settings(self):
+        SettingsWindow(self.root)
 
     def add_bubble(self, speaker, text):
         is_user = speaker.lower() == "you"
