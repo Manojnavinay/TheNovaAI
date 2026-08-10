@@ -7,7 +7,7 @@ TheNovaAi combines:
 * 🎤 Speech recognition
 * 🧠 Groq-powered AI (Not Grok)
 * 🔊 Piper TTS
-* 👂 OpenWakeWord (Currently: Hey Jarvis)
+* 👂 OpenWakeWord (Currently: Hey Nova)
 * 🖥️ PC application control
 * ⌨️ Keyboard/media controls
 * 🌐 Web and YouTube search
@@ -76,8 +76,10 @@ TheNovaAi/
 │
 ├── Main.py
 ├── assistant_core.py
+├── settings_window.py
 ├── Apps.json
 ├── config.json
+├── theme.json
 |
 ├── SpeechRecog/
 |   ├── Hey_Nova.onnx
@@ -195,7 +197,11 @@ Example:
 
 ### Adding an application
 
-Add another entry:
+You can now add apps from the settings --> Apps tab
+
+**OR**
+
+Add another entry in the json:
 
 ```json
 "ExampleApp": {
@@ -249,7 +255,7 @@ print(sd.query_devices())
 Find the desired microphone and update the configured device number in the config file.
 
 ~~A future version will make this configurable without editing the Python source.~~
-Done, you can edit it in the `config.json`
+Done, you can edit it in the `config.json` and from the program itself, settings --> Config Tab
 
 ---
 
@@ -309,11 +315,18 @@ Restart the computer
 Hibernate the computer
 ```
 
-### Exit
+### Pause
 
 ```text
 Close/Exit/Or something similar
 ```
+*OR* click the pause button
+
+### Exit
+
+Right click the `tray icon` --> `Quit Nova`
+*OR*
+Click `Quit Nova` in the program window
 
 ---
 
