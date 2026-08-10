@@ -18,6 +18,15 @@ STATE_COLORS = {
     "paused": "#742a2a",
 }
 
+STATE_LABELS = {
+    "idle": "Idle",
+    "listening_wake": "Waiting for \u201cHey Nova\u201d",
+    "listening_command": "Listening...",
+    "processing": "Thinking...",
+    "speaking": "Speaking...",
+    "paused": "Paused",
+}
+
 
 class GuiCallbacks(core.Callbacks):
     def log(self, speaker, text):
@@ -28,6 +37,9 @@ class GuiCallbacks(core.Callbacks):
 
     def state(self, state):
         event_queue.put(("state", state))
+
+    def level(self, value):
+        event_queue.put(("level", value))
 
 
 def make_tray_image(color="#4a4a4a"):
@@ -44,36 +56,13 @@ class NovaApp:
 
         self.root = ctk.CTk()
         self.root.title("Nova")
-        self.root.geometry("420x560")
+        self.root.geometry("440x620")
+        self.root.minsize(360, 480)
         self.root.protocol("WM_DELETE_WINDOW", self.hide_window)
 
-        self.status_var = ctk.StringVar(value="Starting...")
-        status_label = ctk.CTkLabel(
-            self.root, textvariable=self.status_var, font=("Segoe UI", 14, "bold")
-        )
-        status_label.pack(pady=(12, 4))
-
-        self.chat_box = ctk.CTkTextbox(self.root, width=380, height=440, wrap="word")
-        self.chat_box.pack(padx=12, pady=8, fill="both", expand=True)
-        self.chat_box.configure(state="disabled")
-
-        button_frame = ctk.CTkFrame(self.root, fg_color="transparent")
-        button_frame.pack(pady=(0, 12))
-
-        self.pause_btn = ctk.CTkButton(
-            button_frame, text="Pause", width=100, command=self.toggle_pause
-        )
-        self.pause_btn.grid(row=0, column=0, padx=6)
-
-        quit_btn = ctk.CTkButton(
-            button_frame,
-            text="Quit Nova",
-            width=100,
-            fg_color="#a33",
-            hover_color="#822",
-            command=self.quit_app,
-        )
-        quit_btn.grid(row=0, column=1, padx=6)
+        self.build_header()
+        self.build_chat_area()
+        self.build_footer()
 
         self.stop_event = threading.Event()
         self.pause_event = threading.Event()
@@ -102,8 +91,87 @@ class NovaApp:
         self.tray_thread = threading.Thread(target=self.tray_icon.run, daemon=True)
         self.tray_thread.start()
 
-        self.root.after(100, self.poll_queue)
+        self.root.after(80, self.poll_queue)
         self.root.withdraw()  # start hidden, tray-only
+
+    # ---------- UI BUILDING ----------
+
+    def build_header(self):
+        header = ctk.CTkFrame(self.root, fg_color="transparent")
+        header.pack(fill="x", padx=16, pady=(16, 8))
+
+        title = ctk.CTkLabel(
+            header, text="Nova", font=("Segoe UI", 22, "bold")
+        )
+        title.pack(anchor="w")
+
+        pill_row = ctk.CTkFrame(header, fg_color="transparent")
+        pill_row.pack(anchor="w", pady=(4, 0), fill="x")
+
+        self.status_dot = ctk.CTkLabel(
+            pill_row, text="\u25cf", text_color=STATE_COLORS["idle"],
+            font=("Segoe UI", 16), width=16
+        )
+        self.status_dot.pack(side="left")
+
+        self.status_var = ctk.StringVar(value="Starting...")
+        status_label = ctk.CTkLabel(
+            pill_row, textvariable=self.status_var, font=("Segoe UI", 13)
+        )
+        status_label.pack(side="left", padx=(4, 0))
+
+        self.level_bar = ctk.CTkProgressBar(header, height=6)
+        self.level_bar.set(0)
+        self.level_bar.pack(fill="x", pady=(10, 0))
+
+    def build_chat_area(self):
+        self.chat_frame = ctk.CTkScrollableFrame(
+            self.root, fg_color=("gray90", "gray14")
+        )
+        self.chat_frame.pack(padx=16, pady=8, fill="both", expand=True)
+
+    def build_footer(self):
+        footer = ctk.CTkFrame(self.root, fg_color="transparent")
+        footer.pack(fill="x", padx=16, pady=(0, 16))
+
+        self.pause_btn = ctk.CTkButton(
+            footer, text="Pause", command=self.toggle_pause
+        )
+        self.pause_btn.pack(side="left", expand=True, fill="x", padx=(0, 6))
+
+        quit_btn = ctk.CTkButton(
+            footer,
+            text="Quit Nova",
+            fg_color="#a33",
+            hover_color="#822",
+            command=self.quit_app,
+        )
+        quit_btn.pack(side="left", expand=True, fill="x", padx=(6, 0))
+
+    def add_bubble(self, speaker, text):
+        is_user = speaker.lower() == "you"
+
+        row = ctk.CTkFrame(self.chat_frame, fg_color="transparent")
+        row.pack(fill="x", pady=4)
+
+        bubble = ctk.CTkLabel(
+            row,
+            text=text,
+            font=("Segoe UI", 13),
+            fg_color="#2b6cb0" if is_user else "#3a3a3a",
+            text_color="white",
+            corner_radius=14,
+            justify="left",
+            wraplength=280,
+            padx=12,
+            pady=8,
+        )
+        bubble.pack(side="right" if is_user else "left", padx=6)
+
+        # auto-scroll to newest message
+        self.chat_frame._parent_canvas.yview_moveto(1.0)
+
+    # ---------- EVENT LOOP ----------
 
     def poll_queue(self):
         try:
@@ -113,27 +181,33 @@ class NovaApp:
 
                 if kind == "log":
                     _, speaker, text = item
-                    self.append_chat(speaker, text)
+                    self.add_bubble(speaker, text)
 
                 elif kind == "status":
-                    self.status_var.set(item[1])
+                    pass  # status pill is driven by "state", not raw text
 
                 elif kind == "state":
                     state = item[1]
-                    self.status_var.set(state.replace("_", " ").title())
+                    self.status_var.set(STATE_LABELS.get(state, state))
+                    self.status_dot.configure(
+                        text_color=STATE_COLORS.get(state, "#4a4a4a")
+                    )
                     self.tray_icon.icon = make_tray_image(
                         STATE_COLORS.get(state, "#4a4a4a")
                     )
+                    if state == "paused":
+                        self.pause_btn.configure(text="Resume")
+                    elif state == "idle":
+                        self.pause_btn.configure(text="Pause")
+
+                elif kind == "level":
+                    self.level_bar.set(item[1])
         except queue.Empty:
             pass
 
-        self.root.after(100, self.poll_queue)
+        self.root.after(80, self.poll_queue)
 
-    def append_chat(self, speaker, text):
-        self.chat_box.configure(state="normal")
-        self.chat_box.insert("end", f"{speaker}: {text}\n\n")
-        self.chat_box.see("end")
-        self.chat_box.configure(state="disabled")
+    # ---------- WINDOW / TRAY ----------
 
     def show_window(self, icon=None, item=None):
         self.root.after(0, self.root.deiconify)
