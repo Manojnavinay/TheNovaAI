@@ -126,12 +126,20 @@ wake_responses = [
     "Standing by."
 ]
 
+_last_wake_response = [None]
+
+def pick_wake_response():
+    choices = [r for r in wake_responses if r != _last_wake_response[0]]
+    choice = random.choice(choices)
+    _last_wake_response[0] = choice
+    return choice
+
 WAKE_THRESHOLD = 0.1
 
 media_keyboard = Controller()
 
 space_state = {"held": False}
-
+_speaking = threading.Event()
 
 def _on_space_press(key):
     if key == keyboard.Key.space:
@@ -154,6 +162,7 @@ global_key_listener.start()
 def speak(text):
     _callbacks.log("Assistant", text)
     _callbacks.state("speaking")
+    _speaking.set()
 
     chunks = voice.synthesize(text)
     stream = None
@@ -172,6 +181,8 @@ def speak(text):
         if stream is not None:
             stream.stop()
             stream.close()
+        time.sleep(0.3)  # let any speaker bleed settle before listening again
+        _speaking.clear()
 
 # ---------- LISTEN (push-to-talk) ----------
 
@@ -231,7 +242,7 @@ def wait_for_wake(stop_event: threading.Event):
 
     def callback(indata, frames, time_info, status):
         nonlocal activated
-        if activated:
+        if activated or _speaking.is_set():
             return
         audio = indata[:, 0].astype(np.int16)
         _callbacks.level(min(float(np.sqrt(np.mean(audio.astype(np.float32) ** 2))) / 3000.0, 1.0))
@@ -269,7 +280,7 @@ def wait_for_wake(stop_event: threading.Event):
         _callbacks.status("Space pressed.")
         return "space"
 
-    speak(random.choice(wake_responses))
+    speak(pick_wake_response())
     return "wake"
 
 def listen_after_wake():
