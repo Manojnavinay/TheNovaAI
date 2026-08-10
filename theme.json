@@ -1,0 +1,22 @@
+{
+  "appearance_mode": "dark",
+  "color_theme": "blue",
+  "state_colors": {
+    "idle": "#64748B",
+    "listening_wake": "#3B82F6",
+    "listening_command": "#10B981",
+    "processing": "#F59E0B",
+    "speaking": "#8B5CF6",
+    "paused": "#EF4444"
+  },
+  "bubble": {
+    "user_color": "#2563EB",
+    "assistant_color": "#1E293B",
+    "text_color": "#F8FAFC",
+    "corner_radius": 18,
+    "wraplength": 300
+  },
+  "window": {
+    "chat_background": ["#F1F5F9", "#0F172A"]
+  }
+}
