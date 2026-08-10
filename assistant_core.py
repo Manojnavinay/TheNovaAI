@@ -66,7 +66,7 @@ WAKE_SAMPLE_RATE = config["audio"]["wake_sample_rate"]
 WAKE_BLOCK_SIZE = config["audio"]["wake_block_size"]
 WAKE_MODEL = str(BASE_DIR / config["wake_word"]["model"])
 VAD_THRESHOLD = config["wake_word"]["vad_threshold"]
-
+WAKE_THRESHOLD = config["wake_word"].get("wake_threshold", 0.3)
 VOICE_MODEL = BASE_DIR / config["voice"]["model"]
 VOICE_LENGTH_SCALE = config["voice"]["length_scale"]
 
@@ -133,8 +133,6 @@ def pick_wake_response():
     choice = random.choice(choices)
     _last_wake_response[0] = choice
     return choice
-
-WAKE_THRESHOLD = 0.1
 
 media_keyboard = Controller()
 
