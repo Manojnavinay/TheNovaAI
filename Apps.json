@@ -1,0 +1,44 @@
+{
+    "edge": {
+        "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "process": "msedge.exe",
+		"aliases": [
+			"browser",
+			"web",
+			"internet"
+    ]
+    },
+	
+	
+	
+    "notepad": {
+        "path": "notepad.exe",
+        "process": "notepad.exe",
+		"aliases": [
+			"notes"
+    ]
+    },
+	
+	
+	
+    "calculator": {
+        "path": "calc.exe",
+        "process": "CalculatorApp.exe",
+		"aliases": [
+			"calculator",
+			"calc"
+    ]
+    },
+	
+	
+	
+	"Nuclear": {
+		"path": "C:\\Users\\Manojna\\AppData\\Local\\Nuclear\\nuclear-music-player.exe",
+		"process": "nuclear-music-player.exe",
+		"aliases": [
+			"nuclear",
+			"nuclear music",
+			"music player"
+    ]
+	}
+}
