@@ -1,101 +1,3 @@
-import sounddevice as sd
-import speech_recognition as sr
-import time
-import numpy as np
-import webbrowser
-import urllib.parse
-import subprocess
-import random
-import os
-import sys
-import json
-import threading
-
-from openwakeword.model import Model
-from piper import PiperVoice
-from pynput import keyboard
-from pynput.keyboard import Key, Controller
-from groq import Groq
-from pathlib import Path
-
-# ---------- CALLBACKS ----------
-# The GUI (or CLI) supplies an object with log/status/state methods.
-# Default implementation just prints, so this module still works standalone.
-
-class Callbacks:
-    def log(self, speaker: str, text: str):
-        print(f"{speaker}: {text}")
-
-    def status(self, text: str):
-        print(text)
-
-    def state(self, state: str):
-        # state is one of: idle, listening_wake, listening_command,
-        # processing, speaking, paused
-        pass
-
-
-_callbacks = Callbacks()
-
-
-def set_callbacks(cb: "Callbacks"):
-    global _callbacks
-    _callbacks = cb
-
-
-# ---------- PATHS ----------
-
-if getattr(sys, "frozen", False):
-    BASE_DIR = Path(os.path.dirname(sys.executable))
-else:
-    BASE_DIR = Path(__file__).resolve().parent
-
-# ---------- CONFIG ----------
-
-with open(BASE_DIR / "Config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
-
-API_KEY = config["api_key"]
-
-INPUT_DEVICE = config["audio"]["input_device"]
-SAMPLE_RATE = config["audio"]["sample_rate"]
-WAKE_SAMPLE_RATE = config["audio"]["wake_sample_rate"]
-WAKE_BLOCK_SIZE = config["audio"]["wake_block_size"]
-WAKE_MODEL = str(BASE_DIR / config["wake_word"]["model"])
-VAD_THRESHOLD = config["wake_word"]["vad_threshold"]
-
-VOICE_MODEL = BASE_DIR / config["voice"]["model"]
-VOICE_LENGTH_SCALE = config["voice"]["length_scale"]
-
-AI_MODEL = config["ai"]["model"]
-
-# ---------- SETUP ----------
-
-voice = PiperVoice.load(str(VOICE_MODEL))
-voice.config.length_scale = VOICE_LENGTH_SCALE
-
-client = Groq(api_key=API_KEY)
-
-with open(BASE_DIR / "Apps.json", "r", encoding="utf-8") as file:
-    apps = json.load(file)
-
-wake_model = Model(
-    wakeword_models=[WAKE_MODEL],
-    inference_framework="onnx",
-    vad_threshold=VAD_THRESHOLD
-)
-
-wake_responses = [
-    "Yeah?",
-    "I'm listening.",
-    "Go ahead.",
-    "Yes?",
-    "What can I do for you?"
-]
-
-WAKE_THRESHOLD = 0.3
-
-media_keyboard = Controller()
 
 space_state = {"held": False}
 
@@ -156,18 +58,21 @@ def listen():
         dtype="int16",
         device=INPUT_DEVICE,
         blocksize=WAKE_BLOCK_SIZE,
-        callback=lambda indata, frames, time_info, status:
-            audio_data.append(indata.copy())
+        callback=lambda indata, frames, time_info, status: (
+            audio_data.append(indata.copy()),
+            _callbacks.level(min(float(np.sqrt(np.mean(indata.astype(np.float32) ** 2))) / 3000.0, 1.0))
+        )
     ):
         while space_state["held"]:
             time.sleep(0.01)
 
-    if not audio_data:
-        return ""
+    _callbacks.level(0.0)
 
-    audio = np.concatenate(audio_data, axis=0)
-    recorded_audio = sr.AudioData(audio.tobytes(), WAKE_SAMPLE_RATE, 2)
-    recognizer = sr.Recognizer()
+    if not audio_data:
+
+        audio = np.concatenate(audio_data, axis=0)
+        recorded_audio = sr.AudioData(audio.tobytes(), WAKE_SAMPLE_RATE, 2)
+        recognizer = sr.Recognizer()
 
     try:
         text = recognizer.recognize_google(recorded_audio)
@@ -196,6 +101,7 @@ def wait_for_wake(stop_event: threading.Event):
         if activated:
             return
         audio = indata[:, 0].astype(np.int16)
+        _callbacks.level(min(float(np.sqrt(np.mean(audio.astype(np.float32) ** 2))) / 3000.0, 1.0))
         prediction = wake_model.predict(audio)
         for name, score in prediction.items():
             if _t.time() - last_print[0] > 0.5:
@@ -223,6 +129,8 @@ def wait_for_wake(stop_event: threading.Event):
             time.sleep(0.01)
 
     wake_model.reset()
+
+    _callbacks.level(0.0)
 
     if used_space:
         _callbacks.status("Space pressed.")
@@ -261,6 +169,7 @@ def listen_after_wake():
             audio_data.append(audio)
 
             rms = np.sqrt(np.mean(audio.astype(np.float32) ** 2))
+            _callbacks.level(min(float(rms) / 3000.0, 1.0))
 
             if rms > SILENCE_THRESHOLD:
                 if not speech_started:
@@ -275,7 +184,8 @@ def listen_after_wake():
 
             if speech_started and silence_time >= SILENCE_DURATION:
                 break
-
+            _callbacks.level(0.0)
+            
     if not audio_data:
         return ""
 
