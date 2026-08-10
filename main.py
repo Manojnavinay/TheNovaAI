@@ -9,14 +9,51 @@ import assistant_core as core
 
 event_queue: "queue.Queue" = queue.Queue()
 
-STATE_COLORS = {
-    "idle": "#4a4a4a",
-    "listening_wake": "#2b6cb0",
-    "listening_command": "#2f855a",
-    "processing": "#b7791f",
-    "speaking": "#6b46c1",
-    "paused": "#742a2a",
+import json
+
+THEME_PATH = core.BASE_DIR / "theme.json"
+
+DEFAULT_THEME = {
+    "appearance_mode": "dark",
+    "color_theme": "blue",
+    "state_colors": {
+        "idle": "#4a4a4a",
+        "listening_wake": "#2b6cb0",
+        "listening_command": "#2f855a",
+        "processing": "#b7791f",
+        "speaking": "#6b46c1",
+        "paused": "#742a2a",
+    },
+    "bubble": {
+        "user_color": "#2b6cb0",
+        "assistant_color": "#3a3a3a",
+        "text_color": "#ffffff",
+        "corner_radius": 14,
+        "wraplength": 280,
+    },
+    "window": {"chat_background": ["gray90", "gray14"]},
 }
+
+def _deep_merge(base, override):
+    result = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = _deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+def load_theme():
+    if THEME_PATH.exists():
+        try:
+            with open(THEME_PATH, "r", encoding="utf-8") as f:
+                return _deep_merge(DEFAULT_THEME, json.load(f))
+        except Exception as e:
+            print(f"Couldn't load theme.json, using defaults: {e}")
+    return DEFAULT_THEME
+
+THEME = load_theme()
+STATE_COLORS = THEME["state_colors"]
 
 STATE_LABELS = {
     "idle": "Idle",
@@ -51,8 +88,8 @@ def make_tray_image(color="#4a4a4a"):
 
 class NovaApp:
     def __init__(self):
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+        ctk.set_appearance_mode(THEME["appearance_mode"])
+        ctk.set_default_color_theme(THEME["color_theme"])
 
         self.root = ctk.CTk()
         self.root.title("Nova")
@@ -126,7 +163,7 @@ class NovaApp:
 
     def build_chat_area(self):
         self.chat_frame = ctk.CTkScrollableFrame(
-            self.root, fg_color=("gray90", "gray14")
+            self.root, fg_color=tuple(THEME["window"]["chat_background"])
         )
         self.chat_frame.pack(padx=16, pady=8, fill="both", expand=True)
 
@@ -158,11 +195,11 @@ class NovaApp:
             row,
             text=text,
             font=("Segoe UI", 13),
-            fg_color="#2b6cb0" if is_user else "#3a3a3a",
-            text_color="white",
-            corner_radius=14,
+            fg_color=THEME["bubble"]["user_color"] if is_user else THEME["bubble"]["assistant_color"],
+            text_color=THEME["bubble"]["text_color"],
+            corner_radius=THEME["bubble"]["corner_radius"],
             justify="left",
-            wraplength=280,
+            wraplength=THEME["bubble"]["wraplength"],
             padx=12,
             pady=8,
         )
