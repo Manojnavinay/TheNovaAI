@@ -29,6 +29,9 @@ class GuiCallbacks(core.Callbacks):
     def state(self, state):
         event_queue.put(("state", state))
 
+    def level(self, value):
+        event_queue.put(("level", value))
+
 
 def make_tray_image(color="#4a4a4a"):
     img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
