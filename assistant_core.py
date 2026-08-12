@@ -347,14 +347,18 @@ def listen_after_wake():
 
 # ---------- AI ----------
 
+MAX_HISTORY_MESSAGES = 20  # ~10 back-and-forth turns, keeps context sane
+
+conversation_history = []
+
 def ask_ai(text):
-    response = client.chat.completions.create(
-        model=AI_MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": """
-You are a PC voice assistant.
+    global conversation_history
+
+    messages = [
+        {
+            "role": "system",
+            "content": """
+           You are a PC voice assistant.
 
 You must ALWAYS respond in this format:
 
@@ -444,27 +448,29 @@ User: Hibernate the computer
 ACTION: hibernate
 VALUE:
 SAY: Hibernating.
-"""
-            },
-            {
-                "role": "user",
-                "content": text
-            }
-        ]
+            """
+        },
+        *conversation_history,
+        {
+            "role": "user",
+            "content": text
+        }
+    ]
+
+    response = client.chat.completions.create(
+        model=AI_MODEL,
+        messages=messages
     )
-    return response.choices[0].message.content
 
-# ---------- APPS ----------
+    reply = response.choices[0].message.content
 
-def find_app(name):
-    name = name.lower().strip()
-    for app_name, app in apps.items():
-        if app_name.lower() == name:
-            return app
-        for alias in app.get("aliases", []):
-            if alias.lower() == name:
-                return app
-    return None
+    conversation_history.append({"role": "user", "content": text})
+    conversation_history.append({"role": "assistant", "content": reply})
+
+    if len(conversation_history) > MAX_HISTORY_MESSAGES:
+        conversation_history[:] = conversation_history[-MAX_HISTORY_MESSAGES:]
+
+    return reply
 
 # ---------- EXECUTE ----------
 
