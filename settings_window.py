@@ -262,32 +262,34 @@ class SettingsWindow(ctk.CTkToplevel):
             anchor="w", pady=(4, 4)
         )
 
+        ctk.CTkLabel(tab, text="Name").pack(anchor="w")
         self.app_name_var = ctk.StringVar()
-        ctk.CTkEntry(
-            tab, textvariable=self.app_name_var, placeholder_text="Name (e.g. edge)"
-        ).pack(fill="x", pady=2)
+        ctk.CTkEntry(tab, textvariable=self.app_name_var, placeholder_text="e.g. edge").pack(
+            fill="x", pady=(0, 8)
+        )
 
+        ctk.CTkLabel(tab, text="Path to .exe").pack(anchor="w")
         path_row = ctk.CTkFrame(tab, fg_color="transparent")
-        path_row.pack(fill="x", pady=2)
+        path_row.pack(fill="x", pady=(0, 8))
         self.app_path_var = ctk.StringVar()
-        ctk.CTkEntry(
-            path_row, textvariable=self.app_path_var, placeholder_text="Path to .exe"
-        ).pack(side="left", fill="x", expand=True)
+        ctk.CTkEntry(path_row, textvariable=self.app_path_var).pack(
+            side="left", fill="x", expand=True
+        )
         ctk.CTkButton(path_row, text="Browse", width=70, command=self.browse_app_path).pack(
             side="left", padx=(6, 0)
         )
 
+        ctk.CTkLabel(tab, text="Process name").pack(anchor="w")
         self.app_process_var = ctk.StringVar()
         ctk.CTkEntry(
-            tab, textvariable=self.app_process_var,
-            placeholder_text="Process name (e.g. msedge.exe)"
-        ).pack(fill="x", pady=2)
+            tab, textvariable=self.app_process_var, placeholder_text="e.g. msedge.exe"
+        ).pack(fill="x", pady=(0, 8))
 
+        ctk.CTkLabel(tab, text="Aliases (comma separated)").pack(anchor="w")
         self.app_aliases_var = ctk.StringVar()
         ctk.CTkEntry(
-            tab, textvariable=self.app_aliases_var,
-            placeholder_text="Aliases, comma separated"
-        ).pack(fill="x", pady=2)
+            tab, textvariable=self.app_aliases_var, placeholder_text="e.g. browser, chrome"
+        ).pack(fill="x", pady=(0, 8))
 
         ctk.CTkButton(tab, text="Add / Update App", command=self.add_or_update_app).pack(
             pady=(8, 4)
@@ -344,6 +346,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         with open(APPS_PATH, "w", encoding="utf-8") as f:
             json.dump(self.apps_data, f, indent=2)
+            core.reload_apps()
 
         self.refresh_apps_list()
         self.apps_status.configure(text=f"Saved '{name}'. Restart Nova to apply.")
@@ -358,5 +361,6 @@ class SettingsWindow(ctk.CTkToplevel):
             del self.apps_data[name]
             with open(APPS_PATH, "w", encoding="utf-8") as f:
                 json.dump(self.apps_data, f, indent=2)
+                core.reload_apps()
             self.refresh_apps_list()
             self.apps_status.configure(text=f"Removed '{name}'.")
