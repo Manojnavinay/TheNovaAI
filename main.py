@@ -138,7 +138,7 @@ class NovaApp:
         self.build_topbar()
         self.build_stage()
         self.build_side_panel()
-
+        self.switch_view("chat")
         self.stop_event = threading.Event()
         self.pause_event = threading.Event()
 
@@ -206,8 +206,6 @@ class NovaApp:
 
         self.chat_view.grid(row=0, column=0, sticky="nsew")
         self.orb_view.grid(row=0, column=0, sticky="nsew")
-
-        self.switch_view("chat")
 
     def build_chat_view(self):
         self.chat_view = ctk.CTkFrame(self.body, fg_color="transparent")
